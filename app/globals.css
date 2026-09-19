@@ -513,30 +513,91 @@ h1 em {
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
+}
+
+.results-grid > .result-card:nth-child(-n + 2) {
+  grid-column: span 3;
+}
+
+.results-grid > .result-card:nth-child(n + 3) {
+  grid-column: span 2;
 }
 
 .result-card {
   min-width: 0;
-  padding: 24px;
+  min-height: 225px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--line);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 10px 30px rgba(31, 57, 48, 0.045);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 12px 34px rgba(31, 57, 48, 0.055);
 }
 
 .result-card.featured {
+  min-height: 230px;
+  margin-bottom: 14px;
+  padding: clamp(30px, 4vw, 46px);
   color: #eef9f2;
   border-color: transparent;
   background:
-    radial-gradient(circle at 100% 0, rgba(98, 190, 142, 0.24), transparent 48%),
-    #173e33;
+    radial-gradient(circle at 92% -15%, rgba(98, 190, 142, 0.34), transparent 42%),
+    radial-gradient(circle at 0 120%, rgba(49, 129, 93, 0.22), transparent 42%),
+    #143c31;
+  box-shadow: 0 22px 55px rgba(20, 60, 49, 0.18);
 }
 
 .featured .card-eyebrow,
 .featured .confidence {
   color: #b9d6ca;
+}
+
+.verdict-card .card-eyebrow {
+  margin-bottom: 13px;
+}
+
+.verdict-card .answer-line {
+  align-items: center;
+}
+
+.verdict-card .answer-line h3 {
+  max-width: 850px;
+  font-size: clamp(40px, 6vw, 70px);
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+.verdict-card .confidence {
+  padding: 8px 11px;
+  color: #d8eee4;
+  border: 1px solid rgba(225, 246, 236, 0.17);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.verdict-card .card-description {
+  min-height: 0;
+  margin: 11px 0 28px;
+  color: #b9d2c8;
+  font-size: 13px;
+}
+
+.verdict-card .probabilities {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.verdict-card .probability > div {
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.verdict-card .meter {
+  height: 8px;
 }
 
 .answer-line {
@@ -548,7 +609,8 @@ h1 em {
 
 .answer-line h3 {
   margin: 0;
-  font-size: 23px;
+  font-size: 26px;
+  line-height: 1.08;
   letter-spacing: -0.035em;
   text-transform: capitalize;
 }
@@ -561,22 +623,26 @@ h1 em {
 }
 
 .card-description {
-  min-height: 35px;
-  margin: 8px 0 17px;
+  min-height: 38px;
+  margin: 10px 0 22px;
   color: var(--muted);
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 1.55;
+}
+
+.compact-card > .meter {
+  margin-top: auto;
 }
 
 .probabilities {
-  margin-top: 20px;
+  margin-top: auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px 18px;
+  gap: 15px 20px;
 }
 
 .probability > div {
-  margin-bottom: 5px;
+  margin-bottom: 7px;
   display: flex;
   justify-content: space-between;
   gap: 8px;
@@ -596,7 +662,7 @@ h1 em {
 }
 
 .meter {
-  height: 5px;
+  height: 7px;
   overflow: hidden;
   border-radius: 99px;
   background: rgba(78, 102, 94, 0.11);
@@ -623,7 +689,7 @@ h1 em {
 }
 
 .meter-labels {
-  margin-top: 6px;
+  margin-top: 8px;
   display: flex;
   justify-content: space-between;
   color: #929b97;
@@ -632,14 +698,14 @@ h1 em {
 }
 
 .score-dots {
-  margin-top: 13px;
+  margin-top: 16px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 
 .score-dots span {
-  padding: 7px;
+  padding: 8px;
   display: flex;
   justify-content: space-between;
   color: #53605c;
@@ -758,6 +824,20 @@ footer a {
   border: 0;
 }
 
+@media (max-width: 900px) {
+  .results-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .results-grid > .result-card:nth-child(n) {
+    grid-column: span 1;
+  }
+
+  .results-grid > .result-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 700px) {
   .site-header {
     width: min(100% - 28px, 1180px);
@@ -815,6 +895,10 @@ footer a {
     grid-template-columns: 1fr;
   }
 
+  .results-grid > .result-card:nth-child(n) {
+    grid-column: span 1;
+  }
+
   .results-heading {
     align-items: start;
   }
@@ -832,6 +916,24 @@ footer a {
     padding: 30px 22px;
     flex-direction: column;
     text-align: center;
+  }
+
+  .verdict-card {
+    padding: 28px 24px;
+  }
+
+  .verdict-card .answer-line {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .verdict-card .answer-line h3 {
+    font-size: clamp(38px, 12vw, 52px);
+  }
+
+  .verdict-card .probabilities {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .probabilities {

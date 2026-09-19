@@ -73,20 +73,23 @@ function Meter({ value, tone = "ink" }: { value: number; tone?: "ink" | "green" 
 function ChoiceCard({
   eyebrow,
   answer,
+  description,
   featured = false,
 }: {
   eyebrow: string;
   answer: ChoiceAnswer;
+  description: string;
   featured?: boolean;
 }) {
   const sorted = Object.entries(answer.probabilities).sort((a, b) => b[1] - a[1]);
   return (
-    <article className={`result-card ${featured ? "featured" : ""}`}>
+    <article className={`result-card ${featured ? "featured verdict-card" : ""}`}>
       <p className="card-eyebrow">{eyebrow}</p>
       <div className="answer-line">
         <h3>{pretty[answer.choice] ?? answer.choice.replaceAll("_", " ")}</h3>
         <span className="confidence">{percent(answer.confidence)}</span>
       </div>
+      <p className="card-description">{description}</p>
       <div className="probabilities">
         {sorted.map(([label, probability]) => (
           <div className="probability" key={label}>
@@ -321,10 +324,21 @@ export function FirstScreen() {
             </div>
           </div>
 
+          <ChoiceCard
+            eyebrow="Verdict"
+            answer={result.answers.verdict}
+            description="Jev’s headline recommendation for this first screen"
+            featured
+          />
+
           <PagePreview result={result} />
 
           <div className="results-grid">
-            <ChoiceCard eyebrow="Wall" answer={result.answers.wall} />
+            <ChoiceCard
+              eyebrow="Wall"
+              answer={result.answers.wall}
+              description="Detected state on the first screen"
+            />
             <PromiseCard answer={result.answers.promise_clarity} />
             <NoulCard eyebrow="CTA" answer={result.answers.cta_obvious} description="Primary action on the first screen" />
             <NoulCard
@@ -337,7 +351,6 @@ export function FirstScreen() {
               answer={result.answers.trust_visible}
               description="Proof, logos, guarantees, or metrics"
             />
-            <ChoiceCard eyebrow="Verdict" answer={result.answers.verdict} featured />
           </div>
         </section>
       ) : null}
