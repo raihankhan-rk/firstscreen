@@ -138,6 +138,17 @@ export function getEmbeddingPolicy(headers: {
 export function buildStaticPreview(html: string, finalUrl: URL) {
   const $ = cheerio.load(html);
 
+  $("template[id^='B:']").each((_, template) => {
+    const boundaryId = $(template).attr("id")?.slice(2);
+    if (!boundaryId) return;
+
+    const streamedContent = $(`[id="S:${boundaryId}"]`).first();
+    if (!streamedContent.length) return;
+
+    $(template).replaceWith(streamedContent.contents());
+    streamedContent.remove();
+  });
+
   $("script, noscript, iframe, object, embed, portal, template").remove();
   $("base, meta[http-equiv], link[rel='modulepreload'], link[rel='preload'][as='script']").remove();
   $("main, h1").parents("[hidden]").removeAttr("hidden");

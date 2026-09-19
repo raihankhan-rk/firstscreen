@@ -64,15 +64,16 @@ describe("static preview", () => {
   it("keeps page content while removing active and dangerous markup", () => {
     const preview = buildStaticPreview(
       `<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/bad"></head>
-      <body onload="steal()"><h1>First screen</h1><script>alert(1)</script>
+      <body onload="steal()"><header>Header</header><h1>First screen</h1><script>alert(1)</script>
       <a href="javascript:alert(1)">Bad link</a><form action="/submit"><input></form>
-      <div hidden><main><h1>Streamed hero</h1></main></div>
+      <template id="B:0"></template><footer>Footer</footer>
+      <div hidden id="S:0"><main><h1>Streamed hero</h1></main></div>
       <iframe srcdoc="<script>alert(2)</script>"></iframe></body></html>`,
       new URL("https://example.com/product"),
     );
 
     expect(preview).toContain("First screen");
-    expect(preview).toContain("<div><main><h1>Streamed hero</h1></main></div>");
+    expect(preview).toContain("<main><h1>Streamed hero</h1></main><footer>Footer</footer>");
     expect(preview).toContain('<base href="https://example.com/product" target="_blank">');
     expect(preview).not.toMatch(/<script/i);
     expect(preview).not.toMatch(/<iframe/i);
