@@ -17,8 +17,9 @@ Built by [Raihan Khan](https://x.com/raihankhan_rk) and powered by
 4. One `systemOne` request asks all six questions in parallel with
    `jev-latest`.
 
-No page data or results are persisted. Every attempt writes one structured
-`firstscreen_judge` line to stdout for operational visibility.
+No page data, URLs, identities, or results are persisted. A single anonymous
+successful-judge count is stored when available. Every attempt writes one
+structured `firstscreen_judge` line to stdout for operational visibility.
 
 ## Local development
 
@@ -62,12 +63,26 @@ starts it as a non-root user. Railway supplies `PORT` at runtime.
 
 1. Create a Railway project from this GitHub repository.
 2. Add `TYPESAFE_API_KEY` to the service variables.
-3. Deploy. Railway detects the root `Dockerfile` automatically.
-4. Generate a public domain in the service networking settings.
+3. For a durable public counter, add a Railway volume mounted at `/data`.
+   Without it, the app safely falls back to `/tmp` and reports the counter as
+   temporary.
+4. Deploy. Railway detects the root `Dockerfile` automatically.
+5. Generate a public domain in the service networking settings.
 
-The app needs no database, volume, analytics service, or other persistent
-resource. To inspect judge attempts, search Railway runtime logs for
-`firstscreen_judge`.
+The app needs no database or analytics service. The volume is optional and
+stores only `stats.json` with an aggregate integer. To inspect judge attempts,
+search Railway runtime logs for `firstscreen_judge`.
+
+## Anonymous stats
+
+`GET /api/stats` returns:
+
+```json
+{ "judges": 42, "persistence": "volume" }
+```
+
+The `/stats` page shows the same aggregate. The counter increments only after
+Jev successfully returns answers.
 
 ## Environment variables
 

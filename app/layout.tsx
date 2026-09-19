@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   title: "FirstScreen — Let Jev judge the first screen",
   description:
     "Paste a public URL and get a fast, probability-backed verdict on its wall, promise, CTA, pricing, and trust.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/icon.svg",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

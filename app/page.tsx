@@ -47,6 +47,8 @@ export default function Home() {
             @raihankhan_rk
           </a>
         </span>
+        <span className="footer-dot" aria-hidden="true" />
+        <Link href="/stats">Stats</Link>
       </footer>
     </main>
   );

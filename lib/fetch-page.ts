@@ -112,7 +112,31 @@ async function resolvePublicAddress(url: URL) {
   return addresses[0];
 }
 
-async function fetchHtml(initialUrl: URL): Promise<{ html: string; finalUrl: URL }> {
+function headerValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value.join(", ") : (value ?? "");
+}
+
+export function getEmbeddingPolicy(headers: {
+  "x-frame-options"?: string | string[];
+  "content-security-policy"?: string | string[];
+}) {
+  const frameOptions = headerValue(headers["x-frame-options"]).toUpperCase();
+  if (/(^|,)\s*(DENY|SAMEORIGIN)\s*(,|$)/.test(frameOptions)) {
+    return { embeddable: false, reason: "This site blocks cross-site framing." };
+  }
+
+  const contentSecurityPolicy = headerValue(headers["content-security-policy"]);
+  const frameAncestors = contentSecurityPolicy.match(/(?:^|;)\s*frame-ancestors\s+([^;]+)/i)?.[1];
+  if (frameAncestors && /(?:^|\s)(?:'none'|'self')(?:\s|$)/i.test(frameAncestors)) {
+    return { embeddable: false, reason: "This site restricts who can embed it." };
+  }
+
+  return { embeddable: true, reason: null };
+}
+
+async function fetchHtml(
+  initialUrl: URL,
+): Promise<{ html: string; finalUrl: URL; embedding: ReturnType<typeof getEmbeddingPolicy> }> {
   let current = initialUrl;
 
   for (let redirect = 0; redirect <= MAX_REDIRECTS; redirect += 1) {
@@ -175,7 +199,11 @@ async function fetchHtml(initialUrl: URL): Promise<{ html: string; finalUrl: URL
         }
         chunks.push(buffer);
       }
-      return { html: Buffer.concat(chunks).toString("utf8"), finalUrl: current };
+      return {
+        html: Buffer.concat(chunks).toString("utf8"),
+        finalUrl: current,
+        embedding: getEmbeddingPolicy(response.headers),
+      };
     } catch (error) {
       if (error instanceof PageFetchError) throw error;
       if (error instanceof Error && /timeout|timed out|abort/i.test(error.message)) {
@@ -192,7 +220,7 @@ async function fetchHtml(initialUrl: URL): Promise<{ html: string; finalUrl: URL
 
 export async function fetchPageSummary(input: string) {
   const requestedUrl = normalizePublicUrl(input);
-  const { html, finalUrl } = await fetchHtml(requestedUrl);
+  const { html, finalUrl, embedding } = await fetchHtml(requestedUrl);
   const $ = cheerio.load(html);
 
   $("script, style, noscript, svg, template, iframe, canvas").remove();
@@ -211,6 +239,7 @@ export async function fetchPageSummary(input: string) {
     requestedUrl: requestedUrl.toString(),
     finalUrl: finalUrl.toString(),
     host: finalUrl.hostname,
+    embedding,
     state: {
       url: finalUrl.toString(),
       title,

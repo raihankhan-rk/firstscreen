@@ -21,6 +21,10 @@ type NoulAnswer = { type: "noul"; noul: number };
 type JudgeResult = {
   url: string;
   title: string;
+  embedding: {
+    embeddable: boolean;
+    reason: string | null;
+  };
   answers: {
     wall: ChoiceAnswer;
     promise_clarity: ScoreAnswer;
@@ -150,6 +154,61 @@ function PromiseCard({ answer }: { answer: ScoreAnswer }) {
   );
 }
 
+function PagePreview({ result }: { result: JudgeResult }) {
+  const host = new URL(result.url).hostname;
+
+  return (
+    <section className="preview-card" aria-labelledby="preview-title">
+      <div className="preview-toolbar">
+        <div>
+          <p className="section-kicker" id="preview-title">
+            First screen preview
+          </p>
+          <span className="preview-host">{host}</span>
+        </div>
+        <a href={result.url} target="_blank" rel="noreferrer">
+          Open site <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+
+      {result.embedding.embeddable ? (
+        <div className="preview-viewport">
+          <iframe
+            src={result.url}
+            title={`First screen preview of ${result.title || host}`}
+            sandbox="allow-scripts"
+            referrerPolicy="no-referrer"
+            loading="lazy"
+          />
+        </div>
+      ) : (
+        <div className="preview-blocked">
+          <span className="preview-mark" aria-hidden="true">
+            F
+          </span>
+          <div>
+            <strong>{result.title || host}</strong>
+            <p>{result.embedding.reason ?? "This site does not allow previews in another page."}</p>
+          </div>
+          <a href={result.url} target="_blank" rel="noreferrer">
+            View first screen
+          </a>
+        </div>
+      )}
+
+      {result.embedding.embeddable ? (
+        <p className="preview-note">
+          Live, sandboxed preview. If it stays blank, the site blocks embedding.{" "}
+          <a href={result.url} target="_blank" rel="noreferrer">
+            Open site
+          </a>
+          .
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 export function FirstScreen() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<JudgeResult | null>(null);
@@ -261,6 +320,8 @@ export function FirstScreen() {
               <small>{result.model}</small>
             </div>
           </div>
+
+          <PagePreview result={result} />
 
           <div className="results-grid">
             <ChoiceCard eyebrow="Wall" answer={result.answers.wall} />

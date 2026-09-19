@@ -1,6 +1,7 @@
 import { choice, noul, score, TypeSafeClient } from "@typesafe-ai/sdk";
 import { NextResponse } from "next/server";
 import { fetchPageSummary, normalizePublicUrl, PageFetchError } from "@/lib/fetch-page";
+import { incrementJudges } from "@/lib/stats";
 
 export const runtime = "nodejs";
 
@@ -76,14 +77,22 @@ export async function POST(request: Request) {
       { timeout: 10_000 },
     );
 
+    let total: number | "unknown" = "unknown";
+    try {
+      total = (await incrementJudges()).judges;
+    } catch {
+      // A stats write must never discard valid Jev answers.
+    }
+
     const ms = Math.round(performance.now() - startedAt);
     console.log(
-      `firstscreen_judge url=${oneLine(attemptedUrl)} host=${oneLine(host)} status=ok wall=${response.answers.wall.choice} ms=${ms}`,
+      `firstscreen_judge url=${oneLine(attemptedUrl)} host=${oneLine(host)} status=ok wall=${response.answers.wall.choice} ms=${ms} total=${total}`,
     );
 
     return NextResponse.json({
       url: page.finalUrl,
       title: page.state.title,
+      embedding: page.embedding,
       answers: response.answers,
       model: response.model,
       usage: response.usage,

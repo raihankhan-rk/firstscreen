@@ -374,6 +374,143 @@ h1 em {
   font-size: 19px;
 }
 
+.preview-card {
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 14px 38px rgba(31, 57, 48, 0.07);
+}
+
+.preview-toolbar {
+  min-height: 68px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 5% 20%, rgba(223, 246, 233, 0.88), transparent 13rem),
+    rgba(251, 253, 249, 0.94);
+}
+
+.preview-toolbar .section-kicker {
+  margin-bottom: 4px;
+}
+
+.preview-host {
+  color: #6e7975;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+}
+
+.preview-toolbar > a,
+.preview-blocked > a {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  color: white;
+  border-radius: 9px;
+  background: var(--ink);
+  font-size: 11px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.preview-viewport {
+  position: relative;
+  width: 100%;
+  height: clamp(390px, 55vw, 620px);
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, transparent 49.5%, rgba(27, 48, 42, 0.04) 50%, transparent 50.5%),
+    #f3f5f1;
+}
+
+.preview-viewport::before {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  z-index: 0;
+  width: 24px;
+  height: 24px;
+  content: "";
+  border: 2px solid rgba(25, 107, 80, 0.15);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 900ms linear infinite;
+}
+
+.preview-viewport iframe {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  background: white;
+}
+
+.preview-note {
+  margin: 0;
+  padding: 10px 18px;
+  color: #77817d;
+  border-top: 1px solid var(--line);
+  background: rgba(250, 252, 248, 0.88);
+  font-size: 10px;
+  text-align: center;
+}
+
+.preview-note a {
+  color: var(--green);
+  font-weight: 650;
+}
+
+.preview-blocked {
+  min-height: 230px;
+  padding: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(223, 246, 233, 0.75), transparent 18rem),
+    linear-gradient(135deg, #f9fbf7, #f2f7f2);
+}
+
+.preview-blocked > div {
+  max-width: 400px;
+}
+
+.preview-blocked strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 19px;
+  letter-spacing: -0.025em;
+}
+
+.preview-blocked p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.preview-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: white;
+  border-radius: 14px;
+  background: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 25px;
+  font-style: italic;
+  box-shadow: 0 10px 25px rgba(23, 32, 30, 0.18);
+}
+
 .results-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -517,6 +654,74 @@ h1 em {
   font-size: 9px;
 }
 
+.stats-page {
+  min-height: 100vh;
+  padding: 34px 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-page > .brand {
+  position: absolute;
+  top: 28px;
+  left: max(24px, calc((100% - 1120px) / 2));
+}
+
+.stats-card {
+  width: min(510px, 100%);
+  padding: 52px 35px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(223, 246, 233, 0.9), transparent 22rem),
+    rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow);
+}
+
+.stats-card h1 {
+  margin: 10px 0 0;
+  color: var(--green);
+  font-size: clamp(68px, 15vw, 112px);
+  line-height: 0.95;
+  letter-spacing: -0.075em;
+}
+
+.stats-card h2 {
+  margin: 14px 0 18px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.stats-card > p:not(.section-kicker) {
+  max-width: 365px;
+  margin: 0 auto 25px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.stats-persistence {
+  padding: 7px 10px;
+  color: #587068;
+  border: 1px solid rgba(25, 107, 80, 0.14);
+  border-radius: 99px;
+  background: rgba(241, 250, 243, 0.8);
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stats-back {
+  margin-top: 25px;
+  color: #53625d;
+  font-size: 12px;
+  text-decoration: none;
+}
+
 footer {
   min-height: 64px;
   padding: 18px;
@@ -616,6 +821,17 @@ footer a {
 
   .latency {
     min-width: 108px;
+  }
+
+  .preview-viewport {
+    height: 440px;
+  }
+
+  .preview-blocked {
+    min-height: 250px;
+    padding: 30px 22px;
+    flex-direction: column;
+    text-align: center;
   }
 
   .probabilities {
