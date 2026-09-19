@@ -1,4 +1,5 @@
 import { FirstScreen } from "@/components/first-screen";
+import Link from "next/link";
 
 function GithubMark() {
   return (
@@ -15,10 +16,10 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="/" aria-label="FirstScreen home">
+        <Link className="brand" href="/" aria-label="FirstScreen home">
           <span className="brand-mark">F</span>
           <span>FirstScreen</span>
-        </a>
+        </Link>
         <a
           className="github-link"
           href="https://github.com/raihankhan-rk/firstscreen"

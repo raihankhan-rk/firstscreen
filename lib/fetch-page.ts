@@ -133,7 +133,6 @@ async function fetchHtml(initialUrl: URL): Promise<{ html: string; finalUrl: URL
         },
         headersTimeout: FETCH_TIMEOUT_MS,
         bodyTimeout: FETCH_TIMEOUT_MS,
-        maxRedirections: 0,
       });
 
       if (response.statusCode >= 300 && response.statusCode < 400) {

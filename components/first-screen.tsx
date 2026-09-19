@@ -181,7 +181,7 @@ export function FirstScreen() {
     }
   }
 
-  function useSample(sampleUrl: string) {
+  function selectSample(sampleUrl: string) {
     setUrl(sampleUrl);
     setError("");
   }
@@ -234,7 +234,7 @@ export function FirstScreen() {
         <div className="samples" aria-label="Sample URLs">
           <span>Try</span>
           {samples.map((sample) => (
-            <button type="button" key={sample.url} onClick={() => useSample(sample.url)}>
+            <button type="button" key={sample.url} onClick={() => selectSample(sample.url)}>
               {sample.label}
             </button>
           ))}
