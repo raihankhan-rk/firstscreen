@@ -119,8 +119,13 @@ async function fetchHtml(initialUrl: URL): Promise<{ html: string; finalUrl: URL
     const resolved = await resolvePublicAddress(current);
     const dispatcher = new Agent({
       connect: {
-        lookup: (_hostname, _options, callback) =>
-          callback(null, resolved.address, resolved.family),
+        lookup: (_hostname, options, callback) => {
+          if (options.all) {
+            callback(null, [resolved]);
+            return;
+          }
+          callback(null, resolved.address, resolved.family);
+        },
       },
     });
 
