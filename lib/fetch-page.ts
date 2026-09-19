@@ -142,7 +142,7 @@ export function buildStaticPreview(html: string, finalUrl: URL) {
   $("base, meta[http-equiv], link[rel='modulepreload'], link[rel='preload'][as='script']").remove();
 
   $("*").each((_, element) => {
-    for (const attribute of Object.keys(element.attribs ?? {})) {
+    for (const attribute of Object.keys($(element).attr() ?? {})) {
       if (/^on/i.test(attribute) || attribute === "srcdoc" || attribute === "nonce") {
         $(element).removeAttr(attribute);
       }
