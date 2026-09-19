@@ -331,8 +331,6 @@ export function FirstScreen() {
             featured
           />
 
-          <PagePreview result={result} />
-
           <div className="results-grid">
             <ChoiceCard
               eyebrow="Wall"
@@ -352,6 +350,8 @@ export function FirstScreen() {
               description="Proof, logos, guarantees, or metrics"
             />
           </div>
+
+          <PagePreview result={result} />
         </section>
       ) : null}
     </div>
