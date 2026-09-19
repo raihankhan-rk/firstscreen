@@ -93,6 +93,7 @@ export async function POST(request: Request) {
       url: page.finalUrl,
       title: page.state.title,
       embedding: page.embedding,
+      previewHtml: page.previewHtml,
       answers: response.answers,
       model: response.model,
       usage: response.usage,

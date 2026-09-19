@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { getEmbeddingPolicy, isPublicIp, normalizePublicUrl, PageFetchError } from "./fetch-page";
+import {
+  buildStaticPreview,
+  getEmbeddingPolicy,
+  isPublicIp,
+  normalizePublicUrl,
+  PageFetchError,
+} from "./fetch-page";
 
 describe("public URL validation", () => {
   it("adds HTTPS to bare hosts", () => {
@@ -51,5 +57,26 @@ describe("embedding policy", () => {
       embeddable: true,
       reason: null,
     });
+  });
+});
+
+describe("static preview", () => {
+  it("keeps page content while removing active and dangerous markup", () => {
+    const preview = buildStaticPreview(
+      `<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/bad"></head>
+      <body onload="steal()"><h1>First screen</h1><script>alert(1)</script>
+      <a href="javascript:alert(1)">Bad link</a><form action="/submit"><input></form>
+      <iframe srcdoc="<script>alert(2)</script>"></iframe></body></html>`,
+      new URL("https://example.com/product"),
+    );
+
+    expect(preview).toContain("First screen");
+    expect(preview).toContain('<base href="https://example.com/product" target="_blank">');
+    expect(preview).not.toMatch(/<script/i);
+    expect(preview).not.toMatch(/<iframe/i);
+    expect(preview).not.toContain("onload=");
+    expect(preview).not.toContain("javascript:");
+    expect(preview).not.toContain('action="/submit"');
+    expect(preview).not.toContain("refresh");
   });
 });

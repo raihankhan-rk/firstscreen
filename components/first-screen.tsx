@@ -25,6 +25,7 @@ type JudgeResult = {
     embeddable: boolean;
     reason: string | null;
   };
+  previewHtml: string;
   answers: {
     wall: ChoiceAnswer;
     promise_clarity: ScoreAnswer;
@@ -159,6 +160,8 @@ function PromiseCard({ answer }: { answer: ScoreAnswer }) {
 
 function PagePreview({ result }: { result: JudgeResult }) {
   const host = new URL(result.url).hostname;
+  const [mode, setMode] = useState<"snapshot" | "live">("snapshot");
+  const showLive = mode === "live" && result.embedding.embeddable;
 
   return (
     <section className="preview-card" aria-labelledby="preview-title">
@@ -169,45 +172,48 @@ function PagePreview({ result }: { result: JudgeResult }) {
           </p>
           <span className="preview-host">{host}</span>
         </div>
-        <a href={result.url} target="_blank" rel="noreferrer">
-          Open site <span aria-hidden="true">↗</span>
-        </a>
+        <div className="preview-actions">
+          {result.embedding.embeddable ? (
+            <button type="button" onClick={() => setMode(showLive ? "snapshot" : "live")}>
+              {showLive ? "Use snapshot" : "Try live"}
+            </button>
+          ) : null}
+          <a href={result.url} target="_blank" rel="noreferrer">
+            Open site <span aria-hidden="true">↗</span>
+          </a>
+        </div>
       </div>
 
-      {result.embedding.embeddable ? (
-        <div className="preview-viewport">
+      <div className="preview-viewport">
+        {showLive ? (
           <iframe
             src={result.url}
-            title={`First screen preview of ${result.title || host}`}
-            sandbox="allow-scripts"
+            title={`Live first screen preview of ${result.title || host}`}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            referrerPolicy="no-referrer"
+            loading="lazy"
+            onError={() => setMode("snapshot")}
+          />
+        ) : (
+          <iframe
+            srcDoc={result.previewHtml}
+            title={`Static first screen snapshot of ${result.title || host}`}
+            sandbox="allow-popups"
             referrerPolicy="no-referrer"
             loading="lazy"
           />
-        </div>
-      ) : (
-        <div className="preview-blocked">
-          <span className="preview-mark" aria-hidden="true">
-            F
-          </span>
-          <div>
-            <strong>{result.title || host}</strong>
-            <p>{result.embedding.reason ?? "This site does not allow previews in another page."}</p>
-          </div>
-          <a href={result.url} target="_blank" rel="noreferrer">
-            View first screen
-          </a>
-        </div>
-      )}
+        )}
+      </div>
 
-      {result.embedding.embeddable ? (
-        <p className="preview-note">
-          Live, sandboxed preview. If it stays blank, the site blocks embedding.{" "}
-          <a href={result.url} target="_blank" rel="noreferrer">
-            Open site
-          </a>
-          .
-        </p>
-      ) : null}
+      <p className="preview-note">
+        {showLive
+          ? "Live preview with site scripts and storage enabled inside the frame."
+          : "Reliable static snapshot from the HTML fetched for this judgment."}{" "}
+        <a href={result.url} target="_blank" rel="noreferrer">
+          Open site
+        </a>
+        .
+      </p>
     </section>
   );
 }
@@ -351,7 +357,7 @@ export function FirstScreen() {
             />
           </div>
 
-          <PagePreview result={result} />
+          <PagePreview key={result.url} result={result} />
         </section>
       ) : null}
     </div>

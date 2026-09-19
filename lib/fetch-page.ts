@@ -7,6 +7,7 @@ const FETCH_TIMEOUT_MS = 10_000;
 const MAX_REDIRECTS = 4;
 const MAX_RESPONSE_BYTES = 2_000_000;
 const MAX_STATE_CHARS = 110_000;
+const MAX_PREVIEW_CHARS = 750_000;
 
 export class PageFetchError extends Error {
   constructor(
@@ -134,6 +135,39 @@ export function getEmbeddingPolicy(headers: {
   return { embeddable: true, reason: null };
 }
 
+export function buildStaticPreview(html: string, finalUrl: URL) {
+  const $ = cheerio.load(html);
+
+  $("script, noscript, iframe, object, embed, portal, template").remove();
+  $("base, meta[http-equiv], link[rel='modulepreload'], link[rel='preload'][as='script']").remove();
+
+  $("*").each((_, element) => {
+    for (const attribute of Object.keys(element.attribs ?? {})) {
+      if (/^on/i.test(attribute) || attribute === "srcdoc" || attribute === "nonce") {
+        $(element).removeAttr(attribute);
+      }
+    }
+
+    for (const attribute of ["href", "src", "poster", "formaction"]) {
+      const value = $(element).attr(attribute);
+      if (value && /^\s*(?:javascript|vbscript):/i.test(value)) {
+        $(element).removeAttr(attribute);
+      }
+    }
+  });
+
+  $("form").removeAttr("action method target");
+  $("a").attr({ target: "_blank", rel: "noopener noreferrer" });
+  $("head").prepend(
+    `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src http: https: data:; style-src http: https: 'unsafe-inline'; font-src http: https: data:; media-src http: https:; form-action 'none'; frame-src 'none'">`,
+  );
+  $("head").prepend(`<base href="${finalUrl.toString()}" target="_blank">`);
+
+  const preview = $.html();
+  if (preview.length <= MAX_PREVIEW_CHARS) return preview;
+  return `${preview.slice(0, MAX_PREVIEW_CHARS)}</body></html>`;
+}
+
 async function fetchHtml(
   initialUrl: URL,
 ): Promise<{ html: string; finalUrl: URL; embedding: ReturnType<typeof getEmbeddingPolicy> }> {
@@ -221,6 +255,7 @@ async function fetchHtml(
 export async function fetchPageSummary(input: string) {
   const requestedUrl = normalizePublicUrl(input);
   const { html, finalUrl, embedding } = await fetchHtml(requestedUrl);
+  const previewHtml = buildStaticPreview(html, finalUrl);
   const $ = cheerio.load(html);
 
   $("script, style, noscript, svg, template, iframe, canvas").remove();
@@ -240,6 +275,7 @@ export async function fetchPageSummary(input: string) {
     finalUrl: finalUrl.toString(),
     host: finalUrl.hostname,
     embedding,
+    previewHtml,
     state: {
       url: finalUrl.toString(),
       title,
