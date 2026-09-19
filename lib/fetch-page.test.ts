@@ -66,11 +66,13 @@ describe("static preview", () => {
       `<!doctype html><html><head><meta http-equiv="refresh" content="0;url=/bad"></head>
       <body onload="steal()"><h1>First screen</h1><script>alert(1)</script>
       <a href="javascript:alert(1)">Bad link</a><form action="/submit"><input></form>
+      <div hidden><main><h1>Streamed hero</h1></main></div>
       <iframe srcdoc="<script>alert(2)</script>"></iframe></body></html>`,
       new URL("https://example.com/product"),
     );
 
     expect(preview).toContain("First screen");
+    expect(preview).toContain("<div><main><h1>Streamed hero</h1></main></div>");
     expect(preview).toContain('<base href="https://example.com/product" target="_blank">');
     expect(preview).not.toMatch(/<script/i);
     expect(preview).not.toMatch(/<iframe/i);

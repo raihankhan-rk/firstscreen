@@ -140,6 +140,7 @@ export function buildStaticPreview(html: string, finalUrl: URL) {
 
   $("script, noscript, iframe, object, embed, portal, template").remove();
   $("base, meta[http-equiv], link[rel='modulepreload'], link[rel='preload'][as='script']").remove();
+  $("main, h1").parents("[hidden]").removeAttr("hidden");
 
   $("*").each((_, element) => {
     for (const attribute of Object.keys($(element).attr() ?? {})) {

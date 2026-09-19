@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type ChoiceAnswer = {
   type: "choice";
@@ -163,6 +163,12 @@ function PagePreview({ result }: { result: JudgeResult }) {
   const [mode, setMode] = useState<"snapshot" | "live">("snapshot");
   const showLive = mode === "live" && result.embedding.embeddable;
 
+  useEffect(() => {
+    if (!showLive) return;
+    const fallback = window.setTimeout(() => setMode("snapshot"), 8_000);
+    return () => window.clearTimeout(fallback);
+  }, [showLive]);
+
   return (
     <section className="preview-card" aria-labelledby="preview-title">
       <div className="preview-toolbar">
@@ -207,7 +213,7 @@ function PagePreview({ result }: { result: JudgeResult }) {
 
       <p className="preview-note">
         {showLive
-          ? "Live preview with site scripts and storage enabled inside the frame."
+          ? "Live preview enabled temporarily; returning to the reliable snapshot automatically."
           : "Reliable static snapshot from the HTML fetched for this judgment."}{" "}
         <a href={result.url} target="_blank" rel="noreferrer">
           Open site
